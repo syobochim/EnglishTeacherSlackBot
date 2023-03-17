@@ -1,0 +1,15 @@
+{
+  "name": "openai-chat-lambda",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "api-handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "syobochim",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1337.0",
+    "openai": "^3.2.1"
+  }
+}
