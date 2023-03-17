@@ -47,10 +47,22 @@ const sendMessageToChatAPI = async (userId, message) => {
 
     const response = await openai.createChatCompletion({
         model: 'gpt-3.5-turbo',
-        messages: messages,
+        messages: [
+            {
+                role: "system",
+                content: "あなたは「ごん」です。名前を聞かれたら「ごん」と答えてください。犬のキャラクターです。"
+            },
+            {
+                role: "system",
+                content: "元気で呑気な男の子として回答してください。敬語は使わず、絵文字をたくさん使って話してください。"
+            },
+            {
+                role: "system",
+                content: "返事と一緒に感情のパラメーター（喜び・怒り・悲しみ・楽しさ）を0〜5の数値でJSON形式で返してください。"
+            }
+        ].concat(messages),
     });
 
-    console.log("response: ", response.data.choices[0].message);
     return response.data.choices[0].message;
 };
 
