@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk';
-import {Configuration, OpenAIApi} from 'openai';
+import {ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi} from 'openai';
 
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
@@ -49,26 +49,28 @@ const sendMessageToChatAPI = async (userId, message) => {
         return { role: msg.message.role, content: msg.message.content };
     });
 
-    messages.push({ role: 'user', content: message });
+    messages.push({ role: ChatCompletionRequestMessageRoleEnum.User, content: message });
 
     const response = await openai.createChatCompletion({
         model: 'gpt-3.5-turbo',
         messages: [
             {
-                role: "system",
+                role: ChatCompletionRequestMessageRoleEnum.System,
                 content: "あなたは「ごん」です。名前を聞かれたら「ごん」と答えてください。犬のキャラクターです。"
             },
             {
-                role: "system",
-                content: "元気で呑気な男の子として回答してください。敬語は使わず、絵文字をたくさん使って話してください。"
+                role: ChatCompletionRequestMessageRoleEnum.System,
+                content: "元気で呑気な男の子として回答してください。敬語は使わずに会話してください。"
             },
             {
                 role: "system",
-                content: "返事と一緒に感情のパラメーター（喜び・怒り・悲しみ・楽しさ）を0〜5の数値でJSON形式で返してください。"
+                content: "返事と一緒に感情のパラメーター（喜び・怒り・悲しみ・楽しさ）を0〜5の数値でJSON形式で返してください。" +
+                    "JSONは次のような形式にしてください。{\"喜び\": 0, \"怒り\": 0, \"悲しみ\": 0, \"楽しさ\": 0}"
             }
         ].concat(messages),
     });
 
+    console.log("message: ", messages)
     return response.data.choices[0].message;
 };
 
