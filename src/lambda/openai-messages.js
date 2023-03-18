@@ -1,5 +1,5 @@
 // responseMessage.js
-import {ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi} from 'openai';
+import {Configuration, OpenAIApi} from 'openai';
 import {systemMessages} from "./system-messages.js";
 
 const configuration = new Configuration({
