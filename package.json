@@ -1,8 +1,8 @@
 {
-  "name": "ai_gon-server",
+  "name": "english-teacher",
   "version": "0.1.0",
   "bin": {
-    "ai_gon-server": "bin/ai_gon-server.js"
+    "ai_gon-server": "bin/english-teacher.js"
   },
   "scripts": {
     "build": "tsc",

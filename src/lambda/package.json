@@ -9,6 +9,7 @@
   "author": "syobochim",
   "license": "ISC",
   "dependencies": {
+    "@slack/web-api": "^6.8.1",
     "aws-sdk": "^2.1337.0",
     "openai": "^3.2.1"
   }

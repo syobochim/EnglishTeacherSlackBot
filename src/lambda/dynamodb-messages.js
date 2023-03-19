@@ -18,14 +18,14 @@ export const saveMessageToDynamoDB = async (userId, message) => {
 };
 
 export const getPreviousMessages = async (userId) => {
-    const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
+    const oneHourAgo = Date.now() - 60 * 60 * 1000;
 
     const params = {
         TableName: tableName,
         KeyConditionExpression: 'userId = :userId AND #ts >= :timestamp',
         ExpressionAttributeValues: {
             ':userId': userId,
-            ':timestamp': threeDaysAgo,
+            ':timestamp': oneHourAgo,
         },
         ExpressionAttributeNames: {
             '#ts': 'timestamp',

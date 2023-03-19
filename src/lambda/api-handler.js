@@ -2,11 +2,27 @@
 import { saveMessageToDynamoDB, getPreviousMessages } from './dynamodb-messages';
 import { buildResponseMessage } from './openai-messages';
 import {ChatCompletionRequestMessageRoleEnum} from "openai";
+import {sendMessageToSlack, removeMentions} from "./send-slack.js";
 
 export const handler = async (event) => {
     const body = JSON.parse(event.body)
-    const userId = body.userId;
-    const message = body.message;
+
+    if (body.type === "url_verification") {
+        return {
+            statusCode: 200,
+            body: body.challenge,
+        };
+    }
+    if (event.headers['X-Slack-Retry-Num']) {
+        console.log('Ignoring request with X-Slack-Retry-Num header:', event.headers['X-Slack-Retry-Num']);
+        return {
+            statusCode: 200,
+            body: "Success",
+        };
+    }
+
+    const userId = body.event.user;
+    const message = removeMentions(body.event.text);
 
     await saveMessageToDynamoDB(userId, {
         role: ChatCompletionRequestMessageRoleEnum.User,
@@ -21,8 +37,10 @@ export const handler = async (event) => {
         content: chatAPIResponse.content,
     });
 
+    await sendMessageToSlack(body, chatAPIResponse.content);
+
     return {
         statusCode: 200,
-        body: JSON.stringify(chatAPIResponse),
+        body: "Success",
     };
 };
