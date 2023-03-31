@@ -2,12 +2,26 @@
 import AWS from 'aws-sdk';
 
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
-const tableName = process.env.DYNAMODB_TABLE_NAME;
+const messageTableName = process.env.MESSAGE_TABLE_NAME;
+const phrasesTableName = process.env.PHRASES_TABLE_NAME;
+
+export const savePhraseToDynamoDB = async (userId, phrase, note) => {
+    const timestamp = Date.now();
+    const params = {
+        TableName: phrasesTableName,
+        Item: {
+            userId,
+            phrase,
+            note,
+        },
+    };
+    await dynamoDB.put(params).promise();
+}
 
 export const saveMessageToDynamoDB = async (userId, message) => {
     const timestamp = Date.now();
     const params = {
-        TableName: tableName,
+        TableName: messageTableName,
         Item: {
             userId,
             timestamp,
@@ -21,7 +35,7 @@ export const getPreviousMessages = async (userId) => {
     const oneHourAgo = Date.now() - 60 * 60 * 1000;
 
     const params = {
-        TableName: tableName,
+        TableName: messageTableName,
         KeyConditionExpression: 'userId = :userId AND #ts >= :timestamp',
         ExpressionAttributeValues: {
             ':userId': userId,

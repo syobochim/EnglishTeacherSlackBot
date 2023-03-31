@@ -24,6 +24,20 @@ export class EnglishTeacherStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    const phrasesTable = new dynamodb.Table(this, "phrasesTable", {
+      tableName: "EnglishTeacher-phrases",
+      partitionKey: {
+        name: "userId",
+        type: dynamodb.AttributeType.STRING
+      },
+      sortKey: {
+        name: "phrase",
+        type: dynamodb.AttributeType.STRING
+      },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY
+    });
+
     const openAiSecret = ssm.StringParameter.valueForStringParameter(
         this,
         "openAiSecret"
@@ -38,7 +52,8 @@ export class EnglishTeacherStack extends cdk.Stack {
       entry: "src/lambda/api-handler.js",
       environment: {
         OPENAI_API_KEY: openAiSecret,
-        DYNAMODB_TABLE_NAME: messagesTable.tableName,
+        MESSAGE_TABLE_NAME: messagesTable.tableName,
+        PHRASES_TABLE_NAME: phrasesTable.tableName,
         SLACK_BOT_TOKEN: slackBotToken
       },
       bundling: {
@@ -47,6 +62,7 @@ export class EnglishTeacherStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(29),
     });
     messagesTable.grantReadWriteData(apiFn);
+    phrasesTable.grantReadWriteData(apiFn);
 
     const api = new apigateway.RestApi(this, "EnglishTeacherApi", {
       deployOptions: {

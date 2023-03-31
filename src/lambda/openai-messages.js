@@ -1,24 +1,38 @@
 // responseMessage.js
-import {Configuration, OpenAIApi} from 'openai';
-import {systemMessages} from "./system-messages.js";
+import {ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi} from 'openai';
+import {systemMessagesForCorrection} from "./system-messages-for-correction.js";
+import {SystemMessagesForPhrase} from "./system-messages-for-phrase.js";
 
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
+const modelVersion = "gpt-3.5-turbo";
 
-export const buildResponseMessage = async (userId, previousMessages) => {
+export const buildCorrectionResponseMessage = async (userId, previousMessages) => {
     const messages = previousMessages.map((msg) => {
         return { role: msg.message.role, content: msg.message.content };
     });
 
-    const requestMessages = systemMessages.concat(messages);
-    console.log("requestMessages: ", requestMessages);
+    const requestMessages = systemMessagesForCorrection.concat(messages);
 
     const response = await openai.createChatCompletion({
-        model: 'gpt-3.5-turbo',
+        model: modelVersion,
         messages: requestMessages,
     });
 
+    return response.data.choices[0].message;
+};
+
+export const buildPhrasesMessage = async (userId, phrase) => {
+    const phraseMessage = [{
+        role: ChatCompletionRequestMessageRoleEnum.User,
+        content: phrase
+    }];
+    const requestMessages = SystemMessagesForPhrase.concat(phraseMessage);
+    const response = await openai.createChatCompletion({
+        model: modelVersion,
+        messages: requestMessages
+    });
     return response.data.choices[0].message;
 };
