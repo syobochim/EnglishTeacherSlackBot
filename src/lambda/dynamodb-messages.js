@@ -6,7 +6,6 @@ const messageTableName = process.env.MESSAGE_TABLE_NAME;
 const phrasesTableName = process.env.PHRASES_TABLE_NAME;
 
 export const savePhraseToDynamoDB = async (userId, phrase, note) => {
-    const timestamp = Date.now();
     const params = {
         TableName: phrasesTableName,
         Item: {
