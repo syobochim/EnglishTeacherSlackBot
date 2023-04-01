@@ -1,7 +1,6 @@
 // responseMessage.js
 import {ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi} from 'openai';
 import {systemMessagesForCorrection} from "./system-messages-for-correction.js";
-import {SystemMessagesForPhrase} from "./system-messages-for-phrase.js";
 
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
