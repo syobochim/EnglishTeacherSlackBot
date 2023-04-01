@@ -24,12 +24,12 @@ export const buildCorrectionResponseMessage = async (userId, previousMessages) =
     return response.data.choices[0].message;
 };
 
-export const buildPhrasesMessage = async (userId, phrase) => {
+export const buildPhrasesMessage = async (userId, phrase, systemMessage) => {
     const phraseMessage = [{
         role: ChatCompletionRequestMessageRoleEnum.User,
         content: phrase
     }];
-    const requestMessages = SystemMessagesForPhrase.concat(phraseMessage);
+    const requestMessages = systemMessage.concat(phraseMessage);
     const response = await openai.createChatCompletion({
         model: modelVersion,
         messages: requestMessages

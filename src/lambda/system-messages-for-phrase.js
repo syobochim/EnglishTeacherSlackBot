@@ -9,3 +9,12 @@ export const SystemMessagesForPhrase = [
         XXXXX "
     }
 ]
+
+export const SystemMessagesForTranslate = [
+    {
+        role: ChatCompletionRequestMessageRoleEnum.System,
+        content: "日本語を英語に翻訳し、例文も教えてください。回答は次のフォーマットで返してください。\
+        【英語】 XXXXX \
+        【例文】 XXXXX "
+    }
+]
