@@ -1,13 +1,15 @@
 import { WebClient } from '@slack/web-api';
+import {getSecureString} from "./ssm-paramstore.js";
 
-const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
-const web = new WebClient(SLACK_BOT_TOKEN);
 
 export const removeMentions = (message) => {
     return message.replace(/<@[A-Za-z0-9]+>/g, "").trim();
 };
 
 export const sendMessageToSlack = async (body, chatResponse) => {
+    const SLACK_BOT_TOKEN = await getSecureString("englishTeacherAPI");
+    const web = new WebClient(SLACK_BOT_TOKEN);
+
     const slackEvent = body.event;
     const channelId = slackEvent.channel;
 

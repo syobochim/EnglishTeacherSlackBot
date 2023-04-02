@@ -1,10 +1,10 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
-import * as ssm from "aws-cdk-lib/aws-ssm";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as nodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class EnglishTeacherStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -38,23 +38,22 @@ export class EnglishTeacherStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY
     });
 
-    const openAiSecret = ssm.StringParameter.valueForStringParameter(
-        this,
-        "openAiSecret"
-    );
-    const slackBotToken = ssm.StringParameter.valueForStringParameter(
-        this,
-        "englishTeacherAPI"
-    )
+    // SSM Parameter Storeにアクセスするためのポリシーステートメント
+    const ssmPolicyStatement = new iam.PolicyStatement({
+      actions: ['ssm:GetParameter'],
+      effect: iam.Effect.ALLOW,
+      resources: [
+        'arn:aws:ssm:ap-northeast-1:007738562588:parameter/englishTeacherAPI',
+        'arn:aws:ssm:ap-northeast-1:007738562588:parameter/openAiSecret',
+      ],
+    });
 
     const apiFn = new nodejs.NodejsFunction(this, "EnglishTeacherApiFn", {
       runtime: lambda.Runtime.NODEJS_18_X,
       entry: "src/lambda/api-handler.js",
       environment: {
-        OPENAI_API_KEY: openAiSecret,
         MESSAGE_TABLE_NAME: messagesTable.tableName,
         PHRASES_TABLE_NAME: phrasesTable.tableName,
-        SLACK_BOT_TOKEN: slackBotToken
       },
       bundling: {
         sourceMap: true,
@@ -63,6 +62,7 @@ export class EnglishTeacherStack extends cdk.Stack {
     });
     messagesTable.grantReadWriteData(apiFn);
     phrasesTable.grantReadWriteData(apiFn);
+    apiFn.addToRolePolicy(ssmPolicyStatement);
 
     const api = new apigateway.RestApi(this, "EnglishTeacherApi", {
       deployOptions: {
